@@ -1,10 +1,11 @@
-package com.example.rsocketclient;
+package com.example.rsocketclient.config;
 
 import com.example.rsocketclient.dto.Message;
 import io.rsocket.SocketAcceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.RSocketStrategies;
@@ -28,6 +29,7 @@ public class RSocketConfiguration {
         return builder
                 .setupRoute("client-id")
                 .setupData(clientId)
+                .setupMetadata("", new MediaType("message", "x.rsocket.authentication.bearer.v0"))
                 .rsocketConnector(connector -> connector.acceptor(responder))
                 .tcp("localhost", 8888);
     }

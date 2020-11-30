@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
-import static com.example.rsocketclient.RSocketConfiguration.clientId;
+import static com.example.rsocketclient.config.RSocketConfiguration.clientId;
 
 @RestController
 @RequiredArgsConstructor
