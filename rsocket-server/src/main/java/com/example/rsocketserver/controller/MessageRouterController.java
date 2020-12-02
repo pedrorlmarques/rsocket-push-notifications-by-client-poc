@@ -10,33 +10,36 @@ import org.springframework.messaging.rsocket.annotation.ConnectMapping;
 import org.springframework.stereotype.Controller;
 
 import javax.annotation.PreDestroy;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
 @Slf4j
 public class MessageRouterController {
 
-    private static final Map<String, RSocketRequester> REQUESTER_MAP = new HashMap<>();
+    private static final Map<String, RSocketRequester> REQUESTER_MAP = new ConcurrentHashMap<>();
 
     @ConnectMapping("client-id")
     public void onConnect(RSocketRequester rSocketRequester, @Payload String clientId) {
+
+        String finalClient = clientId.replace("\"", "");
+
         rSocketRequester
                 .rsocket()
                 .onClose()
                 .doFirst(() -> {
                     // Add all new clients to a client list
                     log.info("Client: {} CONNECTED.", clientId);
-                    REQUESTER_MAP.put(clientId, rSocketRequester);
+                    REQUESTER_MAP.put(finalClient, rSocketRequester);
                 })
                 .doOnError(error -> {
                     // Warn when channels are closed by clients
-                    log.warn("Channel to client {} CLOSED", clientId);
+                    log.warn("Channel to client {} CLOSED", finalClient);
                 })
                 .doFinally(consumer -> {
                     // Remove disconnected clients from the client list
                     log.info("Client {} DISCONNECTED", clientId);
-                    REQUESTER_MAP.remove(clientId, rSocketRequester);
+                    REQUESTER_MAP.remove(finalClient, rSocketRequester);
                 }).subscribe();
     }
 
